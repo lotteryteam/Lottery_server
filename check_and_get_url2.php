@@ -25,7 +25,7 @@ if (isset($_GET["appid"]) && isset($_GET["type"])) {
   $stmt->execute(array(':appid' => $appid, ':type' => $type));
   foreach ($stmt as $row) {
     // do something with $row
-    MySuccess($row, 200);
+    MySuccess3($row, 200);
   }
 
   MyError(101, 201);

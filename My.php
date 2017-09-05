@@ -28,7 +28,7 @@ function MySuccess($data, $code)
 
 function MySuccess3($data, $code)
 {
-    $encode_data = base64_encode(serialize($data));
+    $encode_data = base64_encode(MyJsonEncode($data));
     $result = array("data"=>$encode_data,"rt_code"=>(int)$code);
     //$result = json_encode($result);
     $result = MyJsonEncode($result);

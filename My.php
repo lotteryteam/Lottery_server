@@ -20,7 +20,7 @@
 //返回API执行结果（执行die输出）
 function MySuccess($data, $code)
 {
-    $result = array("data"=>$encode_data,"rt_code"=>(int)$code);
+    $result = array("data"=>$data,"rt_code"=>(int)$code);
     //$result = json_encode($result);
     $result = MyJsonEncode($result);
     die($result);

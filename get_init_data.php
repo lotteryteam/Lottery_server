@@ -2,7 +2,7 @@
 // 允许跨域访问
 header("Access-Control-Allow-Origin: *");
 
-// include 'conn.php';
+include 'conn_memcached.php';
 include 'My.php';
 
 $db_host = 'localhost';
@@ -16,19 +16,35 @@ if (isset($_GET["appid"]) && isset($_GET["type"])) {
   $appid = $_GET["appid"];
   $type = $_GET["type"];
 
-  $dbConnection = new PDO('mysql:dbname=mydb;host=127.0.0.1;charset=utf8', $db_user, $db_pwd);
+  //缓存服务器中，都是键值对，这里我们设定唯一的键
+  $key = md5($appid);
 
-  $dbConnection->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
-  $dbConnection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+  $cache_result = array();
+  //根据键，从缓存服务器中获取它的值
+  $cache_result = $mem->get($key);
+  //如果存在该键对应的值，说明缓存中存在该内容
+  if($cache_result){
+    // 已经缓存了
+    echo "get from memcached";
+    $data_result=$cache_result;
+  } else {
+    echo "get from mysql";
+    $dbConnection = new PDO('mysql:dbname=mydb;host=127.0.0.1;charset=utf8', $db_user, $db_pwd);
 
-  $stmt = $dbConnection->prepare('SELECT * FROM lottery WHERE appid = :appid and type = :type');
-  $stmt->execute(array(':appid' => $appid, ':type' => $type));
-  foreach ($stmt as $row) {
-    // do something with $row
-    MySuccess3($row, 200);
+    $dbConnection->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+    $dbConnection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+    $stmt = $dbConnection->prepare('SELECT * FROM lottery WHERE appid = :appid and type = :type');
+    $stmt->execute(array(':appid' => $appid, ':type' => $type));
+    foreach ($stmt as $row) {
+      // do something with $row
+      // MySuccess3($row, 200);
+      $data_result = $row;
+    }
+    $mem->set($key, $data_result, MEMCACHE_COMPRESSED, 1200);
   }
 
-  MyError(101, 201);
+  MySuccess3($data_result, 200);
 
 } else {
   MyError(100, 201);

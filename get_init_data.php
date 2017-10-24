@@ -37,11 +37,9 @@ if (isset($_GET["appid"]) && isset($_GET["type"])) {
     $stmt = $dbConnection->prepare('SELECT * FROM lottery WHERE appid = :appid and type = :type');
     $stmt->execute(array(':appid' => $appid, ':type' => $type));
     foreach ($stmt as $row) {
-      // do something with $row
-      // MySuccess3($row, 200);
       $data_result = $row;
     }
-    $mem->set($key, $data_result, MEMCACHE_COMPRESSED, 1200);
+    $mem->set($key, $data_result, MEMCACHE_COMPRESSED, 3600);
   }
 
   MySuccess3($data_result, 200);

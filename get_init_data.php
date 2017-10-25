@@ -25,10 +25,10 @@ if (isset($_GET["appid"]) && isset($_GET["type"])) {
   //如果存在该键对应的值，说明缓存中存在该内容
   if($cache_result){
     // 已经缓存了
-    echo "get from memcached";
+    // echo "get from memcached";
     $data_result=$cache_result;
   } else {
-    echo "get from mysql";
+    // echo "get from mysql";
     $dbConnection = new PDO('mysql:dbname=mydb;host=127.0.0.1;charset=utf8', $db_user, $db_pwd);
 
     $dbConnection->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);

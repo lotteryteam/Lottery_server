@@ -1,19 +1,13 @@
 <?php
-// 允许跨域访问
 header("Access-Control-Allow-Origin: *");
 
 include 'conn_memcached.php';
 include 'My.php';
 
-// $db_host = 'localhost';
-// $db_name = 'mydb';
-// $db_user = 'root';
-// $db_pwd = 'hpidc@126';
-
-$db_host = '202.61.86.219';
-$db_name = 'mydbtest';
+$db_host = 'localhost';
+$db_name = 'mydb';
 $db_user = 'root';
-$db_pwd = 'hpidc@126';
+$db_pwd = 'Uhdjs89d';
 
 if (isset($_GET["appid"]) && isset($_GET["type"])) {
   //面向对象方式
@@ -21,25 +15,23 @@ if (isset($_GET["appid"]) && isset($_GET["type"])) {
   $appid = $_GET["appid"];
   $type = $_GET["type"];
 
-  缓存服务器中，都是键值对，这里我们设定唯一的键
+  //缓存服务器中，都是键值对，这里我们设定唯一的键
   $key = md5($appid);
 
   $cache_result = array();
   //根据键，从缓存服务器中获取它的值
   $cache_result = $mem->get($key);
   //如果存在该键对应的值，说明缓存中存在该内容
+  $dbConnection = new PDO('mysql:dbname=mydb;host=127.0.0.1;charset=utf8', $db_user, $db_pwd);
+
+  $dbConnection->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+  $dbConnection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
   if($cache_result){
     // 已经缓存了
     // echo "get from memcached";
     $data_result=$cache_result;
   } else {
-    echo "get from mysql";
-    $dbConnection = new PDO('mysql:dbname=mydb;host=127.0.0.1;charset=utf8', $db_user, $db_pwd);
-    // $dbConnection = new PDO('mysql:dbname=mydbtest;host=202.61.86.219;charset=utf8', $db_user, $db_pwd);
-
-    $dbConnection->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
-    $dbConnection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
+    // echo "get from mysql";
     $stmt = $dbConnection->prepare('SELECT * FROM lottery WHERE appid = :appid and type = :type');
     $stmt->execute(array(':appid' => $appid, ':type' => $type));
     foreach ($stmt as $row) {
@@ -47,8 +39,6 @@ if (isset($_GET["appid"]) && isset($_GET["type"])) {
     }
     $mem->set($key, $data_result, MEMCACHE_COMPRESSED, 3600);
   }
-
-  // $id = $data_result['id'];
 
   // update request number
 
@@ -60,8 +50,6 @@ if (isset($_GET["appid"]) && isset($_GET["type"])) {
   }
 
   $request_num = $request_num_result['request_num'];
-
-  echo $request_num;
 
   $request_num = $request_num + 1;
 

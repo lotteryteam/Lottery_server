@@ -63,7 +63,7 @@ if (isset($_GET["appid"]) && isset($_GET["type"])) {
   // execute the query
   $stmt2->execute();
 
-  MySuccess($row, 200);
+  MySuccess($data_result, 200);
 
   MyError(101, 201);
 
